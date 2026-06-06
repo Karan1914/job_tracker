@@ -170,15 +170,31 @@ def _fallback_placeholder(company: dict) -> list[dict]:
 
 
 def _is_bay_area(location: str) -> bool:
-    """Return True if location string indicates SF Bay Area."""
+    """Return True if location is US-based (Bay Area, US remote, or unspecified)."""
     if not location:
         return True  # assume yes if unspecified
     loc = location.lower()
-    bay_keywords = [
+
+    # Reject non-US locations first
+    non_us = [
+        "canada", "toronto", "vancouver", "montreal", "ottawa", "calgary", "british columbia",
+        "united kingdom", " uk", "london", "manchester", "edinburgh",
+        "india", "bangalore", "mumbai", "hyderabad", "pune", "bengaluru",
+        "germany", "berlin", "munich", "frankfurt",
+        "france", "paris",
+        "australia", "sydney", "melbourne",
+        "singapore", "dublin", "amsterdam", "stockholm", "zurich", "tel aviv",
+    ]
+    if any(kw in loc for kw in non_us):
+        return False
+
+    us_keywords = [
         "san francisco", "sf", "menlo park", "palo alto", "mountain view",
         "sunnyvale", "santa clara", "cupertino", "san jose", "redwood city",
         "burlingame", "san mateo", "foster city", "fremont", "oakland",
         "berkeley", "emeryville", "south san francisco", "milpitas",
-        "bay area", "remote", "united states", "us", "california", "ca",
+        "bay area", "california", ", ca", " ca,", " ca ",
+        "remote", "united states", "usa", "u.s.a", "u.s.",
+        "new york", "seattle", "austin", "boston", "chicago", "los angeles",
     ]
-    return any(kw in loc for kw in bay_keywords)
+    return any(kw in loc for kw in us_keywords)
